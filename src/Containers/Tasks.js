@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import { Container, VStack, Box } from "@chakra-ui/react"
+import { Container, VStack, Box, Flex, Input, IconButton } from "@chakra-ui/react";
+import { AddIcon } from '@chakra-ui/icons';
 import TaskItem from '../Components/TaskItem';
 
 const TODO_LIST = [
@@ -30,10 +31,28 @@ const Tasks = () => {
     const [todoList, setTodoList] = useState([]);
     const [doneList, setDoneList] = useState([]);
     const [discardedList, setDiscardedList] = useState([]);
+    const [newTaskValue, setNewTaskValue] = useState('');
+    const [lastId, setLastId] = useState(0);
 
     useEffect(() => {
-        TODO_LIST && setTodoList(TODO_LIST);
+        if(TODO_LIST) {
+            setTodoList(TODO_LIST);
+            const todosMaxId = Math.max(...todoList.map(task => task.id));
+            console.log(todosMaxId);
+            setLastId(todosMaxId);
+        }
+
     },[]);
+
+    const handleInputChange = (event) => setNewTaskValue(event.target.value);
+
+    const handleAddNewTask = () => {
+        setLastId(lastId + 1);
+        newTaskValue !== '' && setTodoList([...todoList, {
+            id: lastId,
+            text: newTaskValue
+        }]);
+    }
 
     const handleDone = id => {
         setDoneList(doneList.concat(todoList.filter(item => item.id === id)));
@@ -62,6 +81,14 @@ const Tasks = () => {
 
     return (
         <Container my={4}>
+            <Flex my={2}>
+                <Input 
+                    value={newTaskValue}
+                    onChange={handleInputChange}
+                    placeholder='Write the new task here'
+                    mr="4" />
+                <IconButton onClick={() => handleAddNewTask()} aria-label="Add new task" icon={<AddIcon />} />
+            </Flex>
             <Box my={2}>
                 <VStack>
                     {generateList(todoList, "orange.300", handleDone, handleDiscard)}
